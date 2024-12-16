@@ -1,44 +1,52 @@
-import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn, Index } from "typeorm";
+import { string } from "joi";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  CreateDateColumn,
+  Index,
+} from "typeorm";
 
 @Entity("users")
 @Index("IDX_Mobile", ["phone"])
 export class User {
-    @PrimaryGeneratedColumn("increment")
-    id: number;
+  @PrimaryGeneratedColumn("increment")
+  id: number;
 
-    @Column({ unique: true })
-    username: string;
+  @Column({ unique: true })
+  username: string;
 
-    @Column()
-    firstname: string;
+  @Column()
+  firstname: string;
 
-    @Column()
-    lastname: string;
+  @Column()
+  lastname: string;
 
-    @Column()
-    email: string;
+  @Column()
+  email: string;
 
-    @Column()
-    passwordHash: string;
+  @Column()
+  passwordHash: string;
 
-    @Column({ unique: true })
-    phone: string;
+  @Column({ nullable: false })
+  latitude: string;
 
-    @Column({nullable:true})
-    Otp: string;
+  @Column({ nullable: false })
+  longitude: string;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @Column({ nullable: true })
+  Address: string;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @Column({ unique: true })
+  phone: string;
 
+  @Column({ nullable: true })
+  Otp: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
 
-
-
-
-
-
-
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
