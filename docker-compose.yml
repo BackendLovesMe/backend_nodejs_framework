@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: node-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis-server:6379
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    command: ["sh", "-c", "sysctl vm.overcommit_memory=1 && redis-server"]
+    networks:
+      - backend-network
+
+networks:
+  backend-network:

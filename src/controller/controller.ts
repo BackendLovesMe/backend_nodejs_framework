@@ -45,4 +45,10 @@ export class Controller {
   public async verifyOtp(request: Request, response: Response) {
     return this.chatAppService.verifyOtp(request, response);
   }
+
+  @httpPost("/add/patners")
+  public async addPatners(request: Request, response: Response){
+    return this.chatAppService.addPatners(request, response);
+  }
 }
+

@@ -30,12 +30,12 @@ export class Service {
       request.body.latitude,
       request.body.longitude
     );
-    getUserData['Address']=address
-    console.log("USER DATA AFter chnages ",getUserData)
+    getUserData['Address'] = address
+    console.log("USER DATA AFter chnages ", getUserData)
 
     const user = await this.chatAppRepo.addUser(getUserData);//adding user details to db 
     //Calling external api to Send OTP 
-    const Otp = await sendOtp(getUserData.phone, getUserData.username); 
+    const Otp = await sendOtp(getUserData.phone, getUserData.username);
     console.log("See my otp ", Otp.toString());
 
     //Encryption of otp
@@ -141,5 +141,19 @@ export class Service {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  public async addPatners(request: Request, response: Response) {
+    const file = request.files['profile_picture'][0];
+    const { patner_name, adhar_number, license_number, DOB, gender, rating } = request.body;
+    console.log(patner_name, adhar_number, license_number, DOB, gender, rating, file.originalname,file.buffer)
+    const filebuffer=(file.buffer).toString('base64')
+     const patnerData={
+      patner_name, adhar_number, license_number, DOB, gender, rating, "profile_picture":filebuffer
+     }
+     //console.log(patnerData)
+      await this.chatAppRepo.addPatners(patnerData);//adding patners data
+    return "Hi ,Patner "
+
   }
 }

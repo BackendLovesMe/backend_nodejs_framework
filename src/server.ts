@@ -33,7 +33,7 @@ let server = new InversifyExpressServer(container);
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (ext === ".xlsx" || ext === ".pdf" || ext === ".mp4") {
+  if (ext === ".png") {
     cb(null, true);
   } else {
     cb(new Error("File format not supported"), false);
@@ -60,7 +60,7 @@ server.setConfig((app) => {
   app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
   app.use(useragent.express());
   app.use(cookieParser());
-  app.use(upload.fields([{ name: "file", maxCount: 1 }])); //multer middleware for asset upload api
+  app.use(upload.fields([{ name: "profile_picture", maxCount: 1 }])); //multer middleware for asset upload api
   //handle cors for request
   app.use(cors());
   app.use(cookieParser());
