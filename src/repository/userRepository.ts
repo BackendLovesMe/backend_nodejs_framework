@@ -5,7 +5,7 @@ import { AppDataSource } from "../config/data-source";
 import { Patners } from "../entities/patners";
 
 @injectable()
-export class repository {
+export class UserRepository {
   private UserRepository = AppDataSource.getRepository(User);
   private PatenerRepository=AppDataSource.getRepository(Patners);
   //  private mongoDb: Db;
@@ -55,9 +55,9 @@ export class repository {
     return res;
   }
 
-  public async addPatners(data){
-    const patners= this.PatenerRepository.create(data);// Prepare a new user
-    console.log("iam from repo ,",data,patners)
-    return await this.PatenerRepository.save(patners);
-  }
+  // public async addPatners(data){
+  //   const patners= this.PatenerRepository.create(data);// Prepare a new user
+  //   console.log("iam from repo ,",data,patners)
+  //   return await this.PatenerRepository.save(patners);
+  // }
 }

@@ -6,7 +6,7 @@
 //   try {
 //     const token = req.headers.authorization?.split(' ')[1];
 //     if(!token) return res.status(403).json({  message: 'No token provided' });
-//     const jwtPayload = <any>jwt.verify(token, SQLProvider.values.jwtSecretKey);
+//     const jwtPayload = <any>jwt.verify(token, process.env.JWTSECRETKEY);
 //     console.log('=================?',jwtPayload)
 //     res.locals.jwtPayload = jwtPayload;
 //     next();

@@ -17,23 +17,28 @@ import { AppDataSource } from "./config/data-source";
 
 import TYPES from "./constant/Types";
 
-import "./controller/controller";
-import { Service } from "./service/service";
-import { repository } from "./repository/Repository";
+ import "./controller/Usercontroller";
+import "./controller/patnerController"
+import { userService } from "./service/userService";
+import { UserRepository } from "./repository/userRepository";
 import { globalException } from "./exception/global_Exception";
+import { PatnerService } from "./service/patnerService";
+import { PatnerRepository } from "./repository/patnerRepository";
 
 //create container instance
 let container = new Container();
 
-container.bind<Service>(TYPES.Service).to(Service);
-container.bind<repository>(TYPES.repository).to(repository);
+container.bind<userService>(TYPES.Userservice).to(userService);
+container.bind<PatnerService>(TYPES.PatnerService).to(PatnerService);
+container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
+container.bind<PatnerRepository>(TYPES.PatnerRepository).to(PatnerRepository)
 // Initialize the server
 let server = new InversifyExpressServer(container);
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (ext === ".png") {
+  if (ext === ".png" || ext === ".jpg" || ext === '.jfif') {
     cb(null, true);
   } else {
     cb(new Error("File format not supported"), false);

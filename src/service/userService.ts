@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import TYPES from "../constant/Types";
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-import { repository } from "../repository/Repository";
+import { UserRepository } from "../repository/userRepository";
 import { AppDataSource } from "../config/data-source";
 import { User } from "../entities/users";
 import * as crypto from "crypto";
@@ -12,10 +12,10 @@ import { string } from "joi";
 import redisClient from "../config/Redis";
 
 @injectable()
-export class Service {
+export class userService {
   private UserRepository = AppDataSource.getRepository(User);
 
-  @inject(TYPES.repository) private readonly chatAppRepo: repository;
+  @inject(TYPES.UserRepository) private readonly userRepo: UserRepository;
 
   public async addUser(request: Request, response: Response) {
     const getUserData = request.body;
@@ -33,7 +33,7 @@ export class Service {
     getUserData['Address'] = address
     console.log("USER DATA AFter chnages ", getUserData)
 
-    const user = await this.chatAppRepo.addUser(getUserData);//adding user details to db 
+    const user = await this.userRepo.addUser(getUserData);//adding user details to db 
     //Calling external api to Send OTP 
     const Otp = await sendOtp(getUserData.phone, getUserData.username);
     console.log("See my otp ", Otp.toString());
@@ -43,7 +43,7 @@ export class Service {
     encrypted += cipher.final("hex");
     console.log("OTP Encrypted", encrypted);
     console.log("OTP IV", iv.toString("hex"));
-    await this.chatAppRepo.addOtp(
+    await this.userRepo.addOtp(
       getUserData.phone,
       `${iv.toString("hex")}:${encrypted} `
     );
@@ -69,36 +69,19 @@ export class Service {
   public async getUser(request: Request, response: Response) {
     //const getUserData=request.body;
 
-    const user = await this.chatAppRepo.getUser();
+    const user = await this.userRepo.getUser();
     return response.status(200).send({
       user,
     });
   }
 
-  public async updateUser(request: Request, response: Response) {
-    const UserId = request.headers.id;
-    const updateData = request.body;
-
-    const user = await this.chatAppRepo.updateUser(UserId, updateData);
-    return response.status(200).send({
-      user,
-    });
-  }
-
-  public async deleteUser(request: Request, response: Response) {
-    const UserId = request.headers.id;
-
-    const user = await this.chatAppRepo.deleteUser(UserId);
-    return response.status(200).send({
-      user,
-    });
-  }
-
+ 
   public async verifyOtp(request: Request, response: Response) {
+    console.log("flow2")
     const data = request.query;
 
     console.log("****", data, "****");
-    const otp = await this.chatAppRepo.verifyOtp(data.number, data.otp); //
+    const otp = await this.userRepo.verifyOtp(data.number, data.otp); //
     console.log("*****OTP******", otp.Otp);
     console.log("******SPLIT STRING*****", otp.Otp.toString());
     try {
@@ -143,17 +126,17 @@ export class Service {
     }
   }
 
-  public async addPatners(request: Request, response: Response) {
-    const file = request.files['profile_picture'][0];
-    const { patner_name, adhar_number, license_number, DOB, gender, rating } = request.body;
-    console.log(patner_name, adhar_number, license_number, DOB, gender, rating, file.originalname,file.buffer)
-    const filebuffer=(file.buffer).toString('base64')
-     const patnerData={
-      patner_name, adhar_number, license_number, DOB, gender, rating, "profile_picture":filebuffer
-     }
-     //console.log(patnerData)
-      await this.chatAppRepo.addPatners(patnerData);//adding patners data
-    return "Hi ,Patner "
+  // public async addPatners(request: Request, response: Response) {
+  //   const file = request.files['profile_picture'][0];
+  //   const { patner_name, adhar_number, license_number, DOB, gender, rating } = request.body;
+  //   console.log(patner_name, adhar_number, license_number, DOB, gender, rating, file.originalname,file.buffer)
+  //   const filebuffer=(file.buffer).toString('base64')
+  //    const patnerData={
+  //     patner_name, adhar_number, license_number, DOB, gender, rating, "profile_picture":filebuffer
+  //    }
+  //    //console.log(patnerData)
+  //     await this.userRepo.addPatners(patnerData);//adding patners data
+  //   return "Hi ,Patner "
 
-  }
+  // }
 }
