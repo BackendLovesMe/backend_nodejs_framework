@@ -14,16 +14,18 @@ import cookieParser from "cookie-parser";
 const multer = require("multer");
 const path = require("path");
 import { AppDataSource } from "./config/data-source";
-
+import * as jwt from "jsonwebtoken";
 import TYPES from "./constant/Types";
-
- import "./controller/Usercontroller";
+import "./controller/Usercontroller";
 import "./controller/patnerController"
+import "./controller/loginController"
 import { userService } from "./service/userService";
 import { UserRepository } from "./repository/userRepository";
 import { globalException } from "./exception/global_Exception";
 import { PatnerService } from "./service/patnerService";
 import { PatnerRepository } from "./repository/patnerRepository";
+import { LoginService } from "./service/loginService";
+import { Types } from "aws-sdk/clients/acm";
 
 //create container instance
 let container = new Container();
@@ -31,7 +33,8 @@ let container = new Container();
 container.bind<userService>(TYPES.Userservice).to(userService);
 container.bind<PatnerService>(TYPES.PatnerService).to(PatnerService);
 container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
-container.bind<PatnerRepository>(TYPES.PatnerRepository).to(PatnerRepository)
+container.bind<PatnerRepository>(TYPES.PatnerRepository).to(PatnerRepository);
+container.bind<LoginService>(TYPES.LoginService).to(LoginService);
 // Initialize the server
 let server = new InversifyExpressServer(container);
 
@@ -78,6 +81,22 @@ server.setConfig((app) => {
     );
     next();
   });
+  app.use(function (request, response, next) {
+    console.log("In authorization function...")
+    console.log(request.url);
+    if (request.url.includes('/login')) {
+      console.log("Bypass this request ")
+      next();
+    } else {
+      const token = request.headers.authorization?.split(' ')[1];
+      if (!token) {
+        console.log('No Token Provided or Invalid Token...');
+        return response.status(403).json({ message: "No token provided" })
+      }
+      const jwtPayload = <any>jwt.verify(token, process.env.JWTSECRETKEY);
+      console.log('========JWT PAYLOAD=========>\n',jwtPayload)
+    }
+  })
 });
 
 //Centralized Exception Handling

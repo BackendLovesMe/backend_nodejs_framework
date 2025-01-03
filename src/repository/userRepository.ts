@@ -27,8 +27,8 @@ export class UserRepository {
     return await this.UserRepository.save(user);
   }
 
-  public async getUser() {
-    const user = await this.UserRepository.find(); // Prepare a new user
+  public async getCredentials(username,passwordHash) {
+    const user = await this.UserRepository.findOne({where :{username,passwordHash}}); // Prepare a new user
     return user;
   }
 

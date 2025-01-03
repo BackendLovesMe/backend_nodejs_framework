@@ -18,6 +18,7 @@ export class userService {
   @inject(TYPES.UserRepository) private readonly userRepo: UserRepository;
 
   public async addUser(request: Request, response: Response) {
+
     const getUserData = request.body;
     const ENCRYPTION_KEY = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
@@ -63,15 +64,6 @@ export class userService {
 
     return response.status(200).send({
       message: "User Created ",
-    });
-  }
-
-  public async getUser(request: Request, response: Response) {
-    //const getUserData=request.body;
-
-    const user = await this.userRepo.getUser();
-    return response.status(200).send({
-      user,
     });
   }
 
@@ -125,18 +117,7 @@ export class userService {
       console.log(err);
     }
   }
+  
 
-  // public async addPatners(request: Request, response: Response) {
-  //   const file = request.files['profile_picture'][0];
-  //   const { patner_name, adhar_number, license_number, DOB, gender, rating } = request.body;
-  //   console.log(patner_name, adhar_number, license_number, DOB, gender, rating, file.originalname,file.buffer)
-  //   const filebuffer=(file.buffer).toString('base64')
-  //    const patnerData={
-  //     patner_name, adhar_number, license_number, DOB, gender, rating, "profile_picture":filebuffer
-  //    }
-  //    //console.log(patnerData)
-  //     await this.userRepo.addPatners(patnerData);//adding patners data
-  //   return "Hi ,Patner "
-
-  // }
+  
 }
