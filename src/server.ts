@@ -81,10 +81,10 @@ server.setConfig((app) => {
     );
     next();
   });
-  app.use(function (request, response, next) {
+  app.use(function (request, response, next) {//jwt auth 
     console.log("In authorization function...")
     console.log(request.url);
-    if (request.url.includes('/login') || request.url.includes('/sendOtp') || request.url.includes('/add/user') || request.url.includes('/verifyOtp')) {
+    if (request.url.includes('/login') /*||  request.url.includes('/add/user') || request.url.includes('/verifyOtp')*/) {
       console.log("Bypass this request ")
       next();
     } else {
@@ -93,8 +93,18 @@ server.setConfig((app) => {
         console.log('No Token Provided or Invalid Token...');
         return response.status(403).json({ message: "No token provided" })
       }
-      const jwtPayload = <any>jwt.verify(token, process.env.JWTSECRETKEY);
+      const jwtPayload = <any>jwt.verify(token, process.env.JWTSECRETKEY,(err, jwtPayload)=>{
+        if(err){
+          console.log('Invalid Token...', err);
+          return response.status(401).json({ message: "Unauthorized access" });
+        }
+        // request.user = jwtPayload;
+        
+        // Proceed to the next middleware or route handler
+        next();
+      });
       console.log('========JWT PAYLOAD=========>\n',jwtPayload)
+      
     }
   })
 });

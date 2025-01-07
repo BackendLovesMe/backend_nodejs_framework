@@ -35,33 +35,7 @@ export class userService {
     console.log("USER DATA AFter chnages ", getUserData)
 
     const user = await this.userRepo.addUser(getUserData);//adding user details to db 
-    //Calling external api to Send OTP 
-    //const Otp = await sendOtp(getUserData.phone, getUserData.username);
-    //console.log("See my otp ", Otp.toString());
-
-    //Encryption of otp
-    // let encrypted = cipher.update(Otp.toString(), "utf8", "hex");
-    // encrypted += cipher.final("hex");
-    // console.log("OTP Encrypted", encrypted);
-    // console.log("OTP IV", iv.toString("hex"));
-    // await this.userRepo.addOtp(
-    //   getUserData.phone,
-    //   `${iv.toString("hex")}:${encrypted} `
-    // );
-
-    //storing dataToStore  to redis
-    // const dataToStore = {
-    //   encryptionKey: ENCRYPTION_KEY.toString("hex"), // Store as hex string
-    //   encryptedOtp: `${iv.toString("hex")}:${encrypted} `, // Store the encrypted OTP
-    // };
-
-    // console.log(dataToStore);
-    // await redisClient.setEx(
-    //   getUserData.phone,
-    //   3600,
-    //   JSON.stringify(dataToStore)
-    // );
-
+    
     return response.status(200).send({
       message: "User Created ",
     });
@@ -147,7 +121,7 @@ export class userService {
         });
       } else {
         return response.send({
-          message: "Incorrect O",
+          message: "Incorrect OTP",
         });
       }
     } catch (err) {
