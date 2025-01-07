@@ -33,5 +33,10 @@ export class Controller {
     return this.userService.verifyOtp(request, response);
     
   }
+  @httpPost("/sendOtp")
+  public async sendOtp(request: Request, response: Response){
+    return this.userService.sendOtp(request, response)
+  }
+
 }
 

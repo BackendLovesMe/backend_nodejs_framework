@@ -36,38 +36,75 @@ export class userService {
 
     const user = await this.userRepo.addUser(getUserData);//adding user details to db 
     //Calling external api to Send OTP 
-    const Otp = await sendOtp(getUserData.phone, getUserData.username);
-    console.log("See my otp ", Otp.toString());
+    //const Otp = await sendOtp(getUserData.phone, getUserData.username);
+    //console.log("See my otp ", Otp.toString());
 
     //Encryption of otp
-    let encrypted = cipher.update(Otp.toString(), "utf8", "hex");
-    encrypted += cipher.final("hex");
-    console.log("OTP Encrypted", encrypted);
-    console.log("OTP IV", iv.toString("hex"));
-    await this.userRepo.addOtp(
-      getUserData.phone,
-      `${iv.toString("hex")}:${encrypted} `
-    );
+    // let encrypted = cipher.update(Otp.toString(), "utf8", "hex");
+    // encrypted += cipher.final("hex");
+    // console.log("OTP Encrypted", encrypted);
+    // console.log("OTP IV", iv.toString("hex"));
+    // await this.userRepo.addOtp(
+    //   getUserData.phone,
+    //   `${iv.toString("hex")}:${encrypted} `
+    // );
 
     //storing dataToStore  to redis
-    const dataToStore = {
-      encryptionKey: ENCRYPTION_KEY.toString("hex"), // Store as hex string
-      encryptedOtp: `${iv.toString("hex")}:${encrypted} `, // Store the encrypted OTP
-    };
+    // const dataToStore = {
+    //   encryptionKey: ENCRYPTION_KEY.toString("hex"), // Store as hex string
+    //   encryptedOtp: `${iv.toString("hex")}:${encrypted} `, // Store the encrypted OTP
+    // };
 
-    console.log(dataToStore);
-    await redisClient.setEx(
-      getUserData.phone,
-      3600,
-      JSON.stringify(dataToStore)
-    );
+    // console.log(dataToStore);
+    // await redisClient.setEx(
+    //   getUserData.phone,
+    //   3600,
+    //   JSON.stringify(dataToStore)
+    // );
 
     return response.status(200).send({
       message: "User Created ",
     });
   }
 
- 
+
+  public async sendOtp(request: Request, response: Response) {
+    const phoneNumber = request.body.phoneNumber
+    const ENCRYPTION_KEY = crypto.randomBytes(32);
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+
+
+    console.log("This is my Number ", phoneNumber)
+
+    const Otp = await sendOtp(phoneNumber);//calling External api to (twilio)
+    //Encryption of otp
+    let encrypted = cipher.update(Otp.toString(), "utf8", "hex");
+    encrypted += cipher.final("hex");
+    console.log("OTP Encrypted", encrypted);
+    console.log("OTP IV", iv.toString("hex"));
+    await this.userRepo.addOtp(//putting encrypted otp to db where phonenumber 
+      phoneNumber,
+      `${iv.toString("hex")}:${encrypted} `
+    );
+    
+     //storing dataToStore  to redis
+    const dataToStore = {
+      encryptionKey: ENCRYPTION_KEY.toString("hex"), // Store as hex string
+      encryptedOtp: `${iv.toString("hex")}:${encrypted} `, // Store the encrypted OTP
+    };
+    await redisClient.setEx(
+        phoneNumber,
+        3600,
+        JSON.stringify(dataToStore)
+      );
+
+    return response.status(200).send({
+      message: "OTP send Sucessfully ",
+    });
+  }
+
+
   public async verifyOtp(request: Request, response: Response) {
     console.log("flow2")
     const data = request.query;
@@ -117,7 +154,7 @@ export class userService {
       console.log(err);
     }
   }
-  
 
-  
+
+
 }

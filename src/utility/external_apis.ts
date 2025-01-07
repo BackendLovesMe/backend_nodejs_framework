@@ -47,14 +47,14 @@ import axios from "axios";
 
 // Load environment variables from .env file
 dotenv.config();
-export async function sendOtp(mobileNumber, username) {
+export async function sendOtp(mobileNumber) {
   const otp = Math.floor(100000 + Math.random() * 900000);
   const accountSid = process.env.ACCOUNT_SID;
   const authToken = process.env.AUTH_TOKEN;
-  const messagingServiceSid = process.env.MESSAGING_SERVICE_SID;
+ // const messagingServiceSid = process.env.MESSAGING_SERVICE_SID;
   // console.log("hihihih",accountSid,authToken,messagingServiceSid,otp,mobileNumber)
   const client = twilio(accountSid, authToken);
-  console.log("CHECKING WHATS WRONG", mobileNumber, username);
+  console.log("CHECKING WHATS WRONG", mobileNumber);
   try {
     console.log("iam here ");
     const message = await client.messages.create({

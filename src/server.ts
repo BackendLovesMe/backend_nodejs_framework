@@ -84,7 +84,7 @@ server.setConfig((app) => {
   app.use(function (request, response, next) {
     console.log("In authorization function...")
     console.log(request.url);
-    if (request.url.includes('/login')) {
+    if (request.url.includes('/login') || request.url.includes('/sendOtp') || request.url.includes('/add/user') || request.url.includes('/verifyOtp')) {
       console.log("Bypass this request ")
       next();
     } else {
