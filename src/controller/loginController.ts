@@ -16,9 +16,17 @@ export class loginController {
 
     @inject(TYPES.LoginService) private LoginService: LoginService;
 
-    @httpPost("/login")
-    public async login(request: Request, response: Response) {
-        console.log("** LOGIN CONTROLLER ")
-        return this.LoginService.login(request,response)
+
+
+    @httpPost("/sendOtp")
+  public async sendOtp(request: Request, response: Response){
+    return this.LoginService.sendOtp(request, response)
+  }
+
+    @httpGet("/verifyOtp")
+    public async verifyOtp(request: Request, response: Response) {
+        console.log("flow1")
+        return this.LoginService.verifyOtp(request, response);
+
     }
 }

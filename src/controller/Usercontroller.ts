@@ -27,16 +27,7 @@ export class Controller {
     return this.userService.addUser(request, response);
   }
 
-  @httpGet("/verifyOtp")
-  public async verifyOtp(request: Request, response: Response) {
-    console.log("flow1")
-    return this.userService.verifyOtp(request, response);
-    
-  }
-  @httpPost("/sendOtp")
-  public async sendOtp(request: Request, response: Response){
-    return this.userService.sendOtp(request, response)
-  }
+ 
 
 }
 

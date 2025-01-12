@@ -3,6 +3,7 @@ import { IDatabase } from "pg-promise";
 import { User } from "../entities/users";
 import { AppDataSource } from "../config/data-source";
 import { Patners } from "../entities/patners";
+import { number } from "joi";
 
 @injectable()
 export class UserRepository {
@@ -20,21 +21,15 @@ export class UserRepository {
     // });
   }
 
-  //removed help and compliance schema changesd to common
-  public async addUser(data) {
-    console.log("User Data we are getting in repo ", data)
-    const user = this.UserRepository.create(data); // Prepare a new user
-    return await this.UserRepository.save(user);
-  }
 
-  public async getCredentials(username,passwordHash) {
-    const user = await this.UserRepository.findOne({where :{username,passwordHash}}); // Prepare a new user
+  public async getCredentials(phoneNumber) {
+    const user = await this.UserRepository.findOneBy({phone:phoneNumber}); // Prepare a new user
     return user;
   }
 
-  public async updateUser(id, data) {
-    console.log(id, data);
-    const user = await this.UserRepository.update({ id: id }, data); // Prepare a new user
+  public async updateUser(number, data) {
+    console.log(number, data);
+    const user = await this.UserRepository.update({ phone: number }, data); // Prepare a new user
     return user;
   }
 
@@ -44,9 +39,7 @@ export class UserRepository {
     return user;
   }
 
-  public async addOtp(phone, otp) {
-    await this.UserRepository.update({ phone }, { Otp: otp });
-  }
+  
   public async verifyOtp(number, otp) {
     const res = await this.UserRepository.findOne({
       where: { phone: number },

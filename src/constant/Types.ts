@@ -3,7 +3,8 @@ const TYPES = {
     PatnerService:'PatnerService',
     UserRepository : 'UserRepository',
     PatnerRepository:'PatnerRepository',
-    LoginService:"LoginService"
+    LoginService:"LoginService",
+    LoginRepository:"LoginRepository"
 }
 
 export default TYPES;

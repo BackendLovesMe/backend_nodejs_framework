@@ -26,6 +26,7 @@ import { PatnerService } from "./service/patnerService";
 import { PatnerRepository } from "./repository/patnerRepository";
 import { LoginService } from "./service/loginService";
 import { Types } from "aws-sdk/clients/acm";
+import { LoginRepository } from "./repository/loginRepository";
 
 //create container instance
 let container = new Container();
@@ -35,6 +36,7 @@ container.bind<PatnerService>(TYPES.PatnerService).to(PatnerService);
 container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<PatnerRepository>(TYPES.PatnerRepository).to(PatnerRepository);
 container.bind<LoginService>(TYPES.LoginService).to(LoginService);
+container.bind<LoginRepository>(TYPES.LoginRepository).to(LoginRepository);
 // Initialize the server
 let server = new InversifyExpressServer(container);
 
@@ -84,7 +86,7 @@ server.setConfig((app) => {
   app.use(function (request, response, next) {//jwt auth 
     console.log("In authorization function...")
     console.log(request.url);
-    if (request.url.includes('/login') /*||  request.url.includes('/add/user') || request.url.includes('/verifyOtp')*/) {
+    if (request.url.includes('/login') ||   request.url.includes('/sendOtp') || request.url.includes('/verifyOtp')/*||  request.url.includes('/add/user') || request.url.includes('/verifyOtp')*/) {
       console.log("Bypass this request ")
       next();
     } else {
@@ -94,6 +96,8 @@ server.setConfig((app) => {
         return response.status(403).json({ message: "No token provided" })
       }
       const jwtPayload = <any>jwt.verify(token, process.env.JWTSECRETKEY,(err, jwtPayload)=>{
+        console.log('========JWT PAYLOAD=========>\n',jwtPayload)
+        request['user'] = jwtPayload//setting payload to request 
         if(err){
           console.log('Invalid Token...', err);
           return response.status(401).json({ message: "Unauthorized access" });
@@ -103,7 +107,7 @@ server.setConfig((app) => {
         // Proceed to the next middleware or route handler
         next();
       });
-      console.log('========JWT PAYLOAD=========>\n',jwtPayload)
+     
       
     }
   })
