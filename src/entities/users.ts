@@ -40,11 +40,11 @@ export class User {
   @Column({ unique: true })
   phone: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   Otp: string;
-  @BeforeInsert()
   @BeforeUpdate()
-  async encryptOtp() {
+  @BeforeInsert()
+   async encryptOtp() {
     if (this.Otp) {
       const otpToHash = String(this.Otp); // Ensure OTP is a string
       console.log("otpToHash", otpToHash)
