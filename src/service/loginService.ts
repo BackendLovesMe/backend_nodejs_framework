@@ -19,66 +19,50 @@ export class LoginService {
   @inject(TYPES.UserRepository) private readonly uesrRepo: UserRepository;
 
 
+ 
+
+  public async sendOtp(request: Request, response: Response) {
+    const phone = request.body.phoneNumber
+    console.log("This is my Number ", phone)
+    const Otp = await sendOtp(phone);//calling External api to (twilio)
+    const data = { Otp, phone }// data to store in database
+    const addOtpToDb = await this.loginRepo.addOtp(data)// storing data to db 
+    console.log(addOtpToDb['Otp'], "OTP FROM DB  ")
+
+    const dataToStore = {
+      otp: addOtpToDb['Otp'],
+      phone
+
+    };
+    await redisClient.setEx(// soring DataToStore in redis cache
+      "number",
+      3600,
+      JSON.stringify(dataToStore)
+    );
+    if (!addOtpToDb) {
+      return response.status(500).send({
+        message: "Something Went Wrong ",
+      });
+    }
+    return response.status(200).send({
+      message: "OTP send Sucessfully ",
+    });
+  }
+
   public async verifyOtp(request: Request, response: Response) {
-    console.log("flow2")
-    const { number, Otp } = request.body;
-
-    console.log("****", number, "****");
+  
+//console.log("****", number, "****");
+   const dataFromRedis = await redisClient.get("number")
+   const number=JSON.parse(dataFromRedis).phone
     const userData = await this.uesrRepo.getCredentials(number) //
-    console.log("*****OTP******", userData);
-    // console.log("******SPLIT STRING*****", otp.Otp.toString());
-    // try {
-    //   let otpString = otp.Otp.toString();
-    //   const [ivHex, encryptedData] = otpString.split(":");
-    //   const phoneNumber = data.number.toString();
-    //   const redisData = JSON.parse(await redisClient.get(phoneNumber));
-    //   const keyBuffer = Buffer.from(redisData.encryptionKey, "hex");
-    //   console.log("** REDIS DATA **", redisData.encryptionKey);
-    //   const iv = Buffer.from(ivHex, "hex");
-    //   const encryptedBuffer = Buffer.from(encryptedData, "hex");
-    //   console.log(
-    //     "*****IV *** ENCRYPTED_BUFFER_DATA **",
-    //     ivHex,
-    //     encryptedBuffer
-    //   );
-    //   console.log("*** IV BUFFER AND ENCRYPTED  BUFFER ** ", iv, keyBuffer);
-
-    //   const decipher = crypto.createDecipheriv("aes-256-cbc", keyBuffer, iv);
-
-    //   const decryptedData = Buffer.concat([
-    //     decipher.update(encryptedBuffer),
-    //     decipher.final(),
-    //   ]);
-    //   const res = decryptedData.toString("utf-8");
-    //   console.log("** DECREPTED DATA ** ", res);
-
-    //   if (data.otp === res) {
-    //     const token = jwt.sign({phoneNumber}, process.env.JWTSECRETKEY, { expiresIn: "15d" });
-    //     return response.send({
-    //       message: "OTP Verified sucessfully",
-    //       token:token
-    //     });
-
-
-
-    //   } else if (redisData === null) {
-    //     return response.send({
-    //       message: "OTP Expired ",
-    //     });
-    //   } else {
-    //     return response.send({
-    //       message: "Incorrect OTP",
-    //     });
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
-    const dataFromRedis = await redisClient.get(number)
+    console.log("*****OTP******", userData['phone']);
+   
+     if(userData['phone'] === number){
     console.log(JSON.parse(dataFromRedis), "** REDIS DATA **")
     try {
-      const { number, otp } = request.body
+      const { otp } = request.body
       if (!number || !otp!) {
-        return response.status(400).json({ message: 'userId and OTP are required' });
+        return response.status(400).json({ message: 'Number and OTP are required' });
       }
       console.log(otp, userData.Otp)
       if (!dataFromRedis) {
@@ -96,34 +80,9 @@ export class LoginService {
     } catch (err) {
       console.log(err.message)
     }
+  }else{
+    return response.status(401).json({ message: 'Incorrect Number /OTP' });
   }
-
-  public async sendOtp(request: Request, response: Response) {
-    const phone = request.body.phoneNumber
-    console.log("This is my Number ", phone)
-    const Otp = await sendOtp(phone);//calling External api to (twilio)
-    const data = { Otp, phone }// data to store in database
-    const addOtpToDb = await this.loginRepo.addOtp(data)// storing data to db 
-    console.log(addOtpToDb['Otp'], "OTP FROM DB  ")
-
-    const dataToStore = {
-      phone,
-      otp: addOtpToDb['Otp'],
-
-    };
-    await redisClient.setEx(// soring DataToStore in redis cache
-      phone,
-      3600,
-      JSON.stringify(dataToStore)
-    );
-    if (!addOtpToDb) {
-      return response.status(500).send({
-        message: "Something Went Wrong ",
-      });
-    }
-    return response.status(200).send({
-      message: "OTP send Sucessfully ",
-    });
   }
 
 
