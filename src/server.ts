@@ -68,6 +68,37 @@ server.setConfig((app) => {
   app.use(helmet());
   app.use(bodyParser.json({ limit: "25mb" }));
   app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
+  app.use(function (request, response, next) {//jwt awth middleware
+    console.log("In authorization function...");
+    console.log(request.url);
+
+    // Bypass certain routes
+    if (request.url.includes('/login') || request.url.includes('/sendOtp') || request.url.includes('/verifyOtp')) {
+        console.log("Bypass this request ");
+        return next(); // Ensure to return here to prevent further execution
+    }
+
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+        console.log('No Token Provided or Invalid Token...');
+        return response.status(403).json({ message: "No token provided" });
+    }
+
+    // Verify the token
+    jwt.verify(token, process.env.JWTSECRETKEY, (err, jwtPayload) => {
+        if (err) {
+            console.log('Invalid Token...', err);
+            return response.status(401).json({ message: "Unauthorized access" });
+        }
+
+        // Set the payload to request
+      response.locals.jwt = jwtPayload; // Setting payload to request 
+        console.log("Setting payload to request ",response.locals.jwt );
+
+        // Proceed to the next middleware or route handler
+        next();
+    });
+});
   app.use(useragent.express());
   app.use(cookieParser());
   app.use(upload.fields([{ name: "profile_picture", maxCount: 1 }])); //multer middleware for asset upload api
@@ -83,34 +114,8 @@ server.setConfig((app) => {
     );
     next();
   });
-  app.use(function (request, response, next) {//jwt auth 
-    console.log("In authorization function...")
-    console.log(request.url);
-    if (request.url.includes('/login') ||   request.url.includes('/sendOtp') || request.url.includes('/verifyOtp')/*||  request.url.includes('/add/user') || request.url.includes('/verifyOtp')*/) {
-      console.log("Bypass this request ")
-      next();
-    } else {
-      const token = request.headers.authorization?.split(' ')[1];
-      if (!token) {
-        console.log('No Token Provided or Invalid Token...');
-        return response.status(403).json({ message: "No token provided" })
-      }
-      const jwtPayload = <any>jwt.verify(token, process.env.JWTSECRETKEY,(err, jwtPayload)=>{
-        console.log('========JWT PAYLOAD=========>\n',jwtPayload)
-        request['user'] = jwtPayload//setting payload to request 
-        if(err){
-          console.log('Invalid Token...', err);
-          return response.status(401).json({ message: "Unauthorized access" });
-        }
-        // request.user = jwtPayload;
-        
-        // Proceed to the next middleware or route handler
-        next();
-      });
-     
-      
-    }
-  })
+ 
+
 });
 
 //Centralized Exception Handling

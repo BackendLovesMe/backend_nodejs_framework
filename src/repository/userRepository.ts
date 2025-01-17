@@ -22,7 +22,7 @@ export class UserRepository {
   }
 
 
-  public async getCredentials(phoneNumber) {
+  public async getUserDeatails(phoneNumber) {
     const user = await this.UserRepository.findOneBy({phone:phoneNumber}); // Prepare a new user
     return user;
   }

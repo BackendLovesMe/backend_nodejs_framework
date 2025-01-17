@@ -10,18 +10,21 @@ import * as crypto from "crypto";
 import { sendOtp, getCurrentLocation } from "../utility/external_apis";
 import { string } from "joi";
 import redisClient from "../config/Redis";
+import { commandOptions } from "redis";
 
 @injectable()
 export class userService {
   private UserRepository = AppDataSource.getRepository(User);
 
   @inject(TYPES.UserRepository) private readonly userRepo: UserRepository;
-
+  
   public async addUser(request: Request, response: Response) {
 
     const getUserData = request.body;
-     const jwtPayload=request['user']//acceing jwt playload data 
-     console.log("What pay laod is comming ",jwtPayload['number'])
+    console.log("this is My jwt payload",response.locals)
+    const jwtPayloads = request['user']; // Accessing JWT payload data
+    // Store JWT payload in class property
+    console.log("What pay laod is comming ", jwtPayloads['number'])
     const address = await getCurrentLocation(
       request.body.latitude,
       request.body.longitude
@@ -29,15 +32,38 @@ export class userService {
     getUserData['Address'] = address
     console.log("USER DATA AFter chnages ", getUserData)
 
-    const user = await this.userRepo.updateUser(jwtPayload['number'],getUserData);//adding user details to db 
-    
+    const user = await this.userRepo.updateUser(jwtPayloads['number'], getUserData);//adding user details to db 
+
     return response.status(200).send({
       message: "User Created ",
     });
   }
-
-
  
+  public async getUserData(request: Request, response: Response) {
+    //const jwtPayload = request['user'];
+    const { number } = response.locals.jwt;
+    console.log("this is My jwt payload",number);
+    const userData=await this.userRepo.getUserDeatails(number)
+    console.log("User Data ",userData);
+    try{
+    if(!userData){
+      return response.status(500).send({
+        message: "User Dees not exists ",
+      });
+    }else {
+      return response.status(200).send({
+        Data:userData,
+      });
+    }
+  }catch(err){
+    console.log("**ERRROR **", err.message)
+  }
+
+  }
+
+
+
+
 
 
   // public async verifyOtp(request: Request, response: Response) {
