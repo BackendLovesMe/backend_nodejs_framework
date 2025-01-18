@@ -1,0 +1,12 @@
+Clone the repository.
+Install dependencies: npm install.
+Configure .env for database credentials and ports.
+tsc --init 
+
+tsc :"run typeScript compiler to convert it into javascript and creating dist folder."
+to start server : npm run dev .
+
+
+Api Documnetation:https://documenter.getpostman.com/view/40414823/2sAYQamWjG
+
+RoadmapPraposal:https://docs.google.com/document/d/10Tn6aXB9OI8Vdan7ch-yyp5gbaC9RxyYcvHaIwVptOY/edit?usp=sharing
