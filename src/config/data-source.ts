@@ -2,7 +2,9 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User} from "../entities/users";
 import { Patners } from "../entities/patners";
-
+import { patenerVechiles } from "../entities/patnerVechiles";
+import {Rides} from "../entities/rides"
+ 
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: "database-1.cbeu46yiskkm.ap-south-1.rds.amazonaws.com",
@@ -12,7 +14,7 @@ export const AppDataSource = new DataSource({
   database: "postgres",
   synchronize: true, // For development, set to false in production
   logging: true,
-  entities: [User,Patners],
+  entities: [User,Patners,patenerVechiles,Rides],
   ssl: {
     rejectUnauthorized: false, // Use only for development; ensure proper certificates in production
   },//use ssl when we are connection servere connection.

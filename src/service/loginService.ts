@@ -54,7 +54,7 @@ export class LoginService {
 //console.log("****", number, "****");
    const dataFromRedis = await redisClient.get("number")
    const number=JSON.parse(dataFromRedis).phone
-    const userData = await this.uesrRepo.getCredentials(number) //
+    const userData = await this.uesrRepo.getUserDeatails(number) //
     console.log("*****OTP******", userData['phone']);
    
      if(userData['phone'] === number){

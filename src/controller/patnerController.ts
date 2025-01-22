@@ -25,4 +25,10 @@ export class patnersController {
   public async addPatners(request: Request, response: Response) {
     return this.PatnerService.addPatners(request, response);
   }
+
+  @httpPost("/patner/vechiles")
+  public async patenerVechiles(request: Request, response: Response) {
+    console.log("checking ...")
+    return this.PatnerService.patanerVechiles(request, response);
+  }
 }

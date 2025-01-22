@@ -4,7 +4,9 @@ const TYPES = {
     UserRepository : 'UserRepository',
     PatnerRepository:'PatnerRepository',
     LoginService:"LoginService",
-    LoginRepository:"LoginRepository"
+    LoginRepository:"LoginRepository",
+    RidesService:"RidesService",
+    RidesRepository:"RidesRepository"
 }
 
 export default TYPES;

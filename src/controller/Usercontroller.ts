@@ -26,7 +26,7 @@ export class Controller {
     console.log("Hey hey ");
     return this.userService.addUser(request, response);
   }
-  @httpGet("/getUserData")
+  @httpPost("/getUserData")
   public async getUserData(resuest:Request, response :Response){
     return this.userService.getUserData(request, response);
 

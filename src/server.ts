@@ -101,7 +101,7 @@ server.setConfig((app) => {
 });
   app.use(useragent.express());
   app.use(cookieParser());
-  app.use(upload.fields([{ name: "profile_picture", maxCount: 1 }])); //multer middleware for asset upload api
+  app.use(upload.fields([{ name: "profile_picture", maxCount: 1 },{ name: "vechile_picture", maxCount: 1 }])); //multer middleware for asset upload api
   //handle cors for request
   app.use(cors());
   app.use(cookieParser());
