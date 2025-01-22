@@ -17,6 +17,11 @@ jobs:
       run: |
         echo "RUNNER_DEBUG=true" >> $GITHUB_ENV
         echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
+
+    - name: Build Application
+      run: |
+          npm install
+          npm run dev
     
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v3
