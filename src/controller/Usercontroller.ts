@@ -21,7 +21,7 @@ import TYPES from "../constant/Types";
 export class Controller {
   @inject(TYPES.Userservice) private userService: userService;
 
-  @httpPost("/add/user")
+  @httpPost("/updateUser")
   public async addUser(request: Request, response: Response) {
     console.log("Hey hey ");
     return this.userService.addUser(request, response);
