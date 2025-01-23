@@ -58,17 +58,21 @@ jobs:
       run: |
         echo '{
           "family": "my-backend-task",
+          "requiresCompatibilities": ["FARGATE"],
+          "networkMode": "awsvpc",
+          "cpu": "256",
+          "memory": "512",
+          "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
+          "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
           "containerDefinitions": [
             {
               "name": "my-backend",
               "image": "${{ secrets.ECR_REPOSITORY }}:latest",
-              "cpu": 256,
-              "memory": 512,
               "essential": true,
               "portMappings": [
                 {
                   "containerPort": 3000,
-                  "hostPort": 3000
+                  "protocol": "tcp"
                 }
               ]
             }
@@ -80,5 +84,5 @@ jobs:
       with:
         cluster: ${{ secrets.CLUSTER_NAME }}
         service: ${{ secrets.SERVICE_NAME }}
-        force-new-deployment: true
         task-definition: task-definition.json
+        force-new-deployment: true
