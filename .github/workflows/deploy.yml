@@ -21,17 +21,14 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'  # Specify your Node.js version
+        node-version: '22'
 
     - name: Install Dependencies
-      run: |
-        npm install
+      run: npm install
 
     - name: Compile TypeScript Code
-      run: |
-        npx tsc
-        npm run dev
-    
+      run: npx tsc
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
@@ -52,28 +49,72 @@ jobs:
       run: |
         docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
+    - name: Create task definition file
+      run: |
+        echo '{
+          "family": "my-backend-task",
+          "requiresCompatibilities": ["FARGATE"],
+          "networkMode": "awsvpc",
+          "cpu": "512",
+          "memory": "1024",
+          "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
+          "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
+          "containerDefinitions": [
+            {
+              "name": "my-backend",
+              "image": "${{ secrets.ECR_REPOSITORY }}:latest",
+              "essential": true,
+              "portMappings": [
+                {
+                  "containerPort": 3000,
+                  "protocol": "tcp"
+                }
+              ],
+              "environment": [
+                {
+                  "name": "REDIS_HOST",
+                  "value": "redis"
+                },
+                {
+                  "name": "REDIS_PORT",
+                  "value": "6379"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/my-backend-task",
+                  "awslogs-region": "${{ secrets.AWS_REGION }}",
+                  "awslogs-stream-prefix": "backend"
+                }
+              }
+            },
+            {
+              "name": "redis",
+              "image": "redis:alpine",
+              "essential": true,
+              "portMappings": [
+                {
+                  "containerPort": 6379,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/my-backend-task",
+                  "awslogs-region": "${{ secrets.AWS_REGION }}",
+                  "awslogs-stream-prefix": "redis"
+                }
+              }
+            }
+          ]
+        }' > task-definition.json
+
     - name: Deploy to ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         cluster: ${{ secrets.CLUSTER_NAME }}
         service: ${{ secrets.SERVICE_NAME }}
+        task-definition: task-definition.json
         force-new-deployment: true
-        task-definition: |
-          {
-            "family": "my-backend-task",
-            "containerDefinitions": [
-              {
-                "name": "my-backend",
-                "image": "${{ secrets.ECR_REPOSITORY }}:latest",
-                "cpu": 256,
-                "memory": 512,
-                "essential": true,
-                "portMappings": [
-                  {
-                    "containerPort": 3000,
-                    "hostPort": 3000
-                  }
-                ]
-              }
-            ]
-          }
