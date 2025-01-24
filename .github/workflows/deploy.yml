@@ -8,11 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis:alpine
-        ports:
-          - 6379:6379
 
     steps:
     - name: Checkout Code
@@ -60,8 +55,8 @@ jobs:
           "family": "my-backend-task",
           "requiresCompatibilities": ["FARGATE"],
           "networkMode": "awsvpc",
-          "cpu": "256",
-          "memory": "512",
+          "cpu": "512",
+          "memory": "1024",
           "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
           "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
           "containerDefinitions": [
@@ -75,12 +70,41 @@ jobs:
                   "protocol": "tcp"
                 }
               ],
+              "environment": [
+                {
+                  "name": "REDIS_HOST",
+                  "value": "redis"
+                },
+                {
+                  "name": "REDIS_PORT",
+                  "value": "6379"
+                }
+              ],
               "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
                   "awslogs-group": "/ecs/my-backend-task",
                   "awslogs-region": "${{ secrets.AWS_REGION }}",
-                  "awslogs-stream-prefix": "ecs"
+                  "awslogs-stream-prefix": "backend"
+                }
+              }
+            },
+            {
+              "name": "redis",
+              "image": "redis:alpine",
+              "essential": true,
+              "portMappings": [
+                {
+                  "containerPort": 6379,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/my-backend-task",
+                  "awslogs-region": "${{ secrets.AWS_REGION }}",
+                  "awslogs-stream-prefix": "redis"
                 }
               }
             }
