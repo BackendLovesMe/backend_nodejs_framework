@@ -144,8 +144,12 @@ process.on("rejectionHandled", (err) => {
 // salesforceClientInstance.oauthLogin();
 
 let app = server.build();
-app.listen(process.env.VCAP_APP_PORT || 8080); //port allocation and server is listenning on this port
-console.log(
-  "Server Starting on : http://localhost:" + (process.env.VCAP_APP_PORT || 8080)
-);
+const port = parseInt(process.env.PORT || "3000", 10); // Default to 8080 if PORT is not set
+const host = process.env.HOST || '0.0.0.0';
+app.listen(port,host,()=>{
+  console.log(
+    `Server Starting on : host  ${host}:port ${port}`
+  );
+}); //port allocation and server is listenning on this port
+
 exports = module.exports = app;
