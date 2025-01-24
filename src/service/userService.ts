@@ -22,7 +22,7 @@ export class userService {
 
     const getUserData = request.body;
     console.log("this is My jwt payload",response.locals)
-    const jwtPayloads = request['user']; // Accessing JWT payload data
+    const jwtPayloads = response.locals; // Accessing JWT payload data
     // Store JWT payload in class property
     console.log("What pay laod is comming ", jwtPayloads['number'])
     const address = await getCurrentLocation(

@@ -7,7 +7,7 @@ import {Rides} from "../entities/rides"
  
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: "database-1.cbeu46yiskkm.ap-south-1.rds.amazonaws.com",
+  host: "eviandb.c3m0g24emq3l.us-east-1.rds.amazonaws.com",
   port: 5432,
   username: "postgres",
   password: "12345678",
