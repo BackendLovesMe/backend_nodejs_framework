@@ -8,6 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
 
     steps:
     - name: Checkout Code
@@ -55,8 +60,8 @@ jobs:
           "family": "my-backend-task",
           "requiresCompatibilities": ["FARGATE"],
           "networkMode": "awsvpc",
-          "cpu": "512",
-          "memory": "1024",
+          "cpu": "256",
+          "memory": "512",
           "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
           "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
           "containerDefinitions": [
@@ -70,42 +75,15 @@ jobs:
                   "protocol": "tcp"
                 }
               ],
-              "environment": [
-                {
-                  "name": "REDIS_HOST",
-                  "value": "redis"
-                },
-                {
-                  "name": "REDIS_PORT",
-                  "value": "6379"
-                }
-              ],
-              "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                  "awslogs-group": "/ecs/my-backend-task",
-                  "awslogs-region": "${{ secrets.AWS_REGION }}",
-                  "awslogs-stream-prefix": "backend"
-                }
-              }
-            },
-            {
-              "name": "redis",
-              "image": "redis:alpine",
-              "essential": true,
-              "portMappings": [
-                {
-                  "containerPort": 6379,
-                  "protocol": "tcp"
-                }
-              ],
-              "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                  "awslogs-group": "/ecs/my-backend-task",
-                  "awslogs-region": "${{ secrets.AWS_REGION }}",
-                  "awslogs-stream-prefix": "redis"
-                }
+              "healthCheck": {
+                "command": [
+                  "CMD-SHELL",
+                  "curl -f http://localhost:3000/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
               }
             }
           ]
