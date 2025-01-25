@@ -78,6 +78,30 @@ jobs:
                 {
                   "name": "REDIS_PORT",
                   "value": "6379"
+                },
+                {
+                  "name": "ACCOUNT_SID",
+                  "value": "${{ secrets.ACCOUNT_SID }}"
+                },
+                {
+                  "name": "AUTH_TOKEN",
+                  "value": "${{ secrets.AUTH_TOKEN }}"
+                },
+                {
+                  "name": "MESSAGING_SERVICE_SID",
+                  "value": "${{ secrets.MESSAGING_SERVICE_SID }}"
+                },
+                {
+                  "name": "GOOGLE_API_KEY",
+                  "value": "${{ secrets.GOOGLE_API_KEY }}"
+                },
+                {
+                  "name": "REDIS_URL",
+                  "value": "${{ secrets.REDIS_URL }}"
+                },
+                {
+                  "name": "JWTSECRETKEY",
+                  "value": "${{ secrets.JWTSECRETKEY }}"
                 }
               ],
               "logConfiguration": {
