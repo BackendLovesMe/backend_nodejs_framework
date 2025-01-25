@@ -80,6 +80,10 @@ jobs:
                   "value": "6379"
                 },
                 {
+                  "name": "REDIS_URL",
+                  "value": "redis://redis:6379"
+                },
+                {
                   "name": "ACCOUNT_SID",
                   "value": "${{ secrets.ACCOUNT_SID }}"
                 },
@@ -98,10 +102,6 @@ jobs:
                 {
                   "name": "JWTSECRETKEY",
                   "value": "${{ secrets.JWTSECRETKEY }}"
-                },
-                {
-                  "name": "REDIS_URL",
-                  "value": "${{ secrets.REDIS_URL }}"
                 }
               ],
               "logConfiguration": {
