@@ -49,16 +49,11 @@ jobs:
       run: |
         docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
-    - name: Create task definition file
+    - name: Create ECS Task Definition
       run: |
         echo '{
           "family": "my-backend-task",
-          "requiresCompatibilities": ["FARGATE"],
           "networkMode": "awsvpc",
-          "cpu": "512",
-          "memory": "1024",
-          "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
-          "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
           "containerDefinitions": [
             {
               "name": "my-backend",
@@ -71,37 +66,18 @@ jobs:
                 }
               ],
               "environment": [
+                { "name": "REDIS_HOST", "value": "redis" },
+                { "name": "REDIS_PORT", "value": "6379" },
+                { "name": "ACCOUNT_SID", "value": "${{ secrets.ACCOUNT_SID }}" },
+                { "name": "AUTH_TOKEN", "value": "${{ secrets.AUTH_TOKEN }}" },
+                { "name": "MESSAGING_SERVICE_SID", "value": "${{ secrets.MESSAGING_SERVICE_SID }}" },
+                { "name": "GOOGLE_API_KEY", "value": "${{ secrets.GOOGLE_API_KEY }}" },
+                { "name": "JWTSECRETKEY", "value": "${{ secrets.JWTSECRETKEY }}" }
+              ],
+              "dependsOn": [
                 {
-                  "name": "REDIS_HOST",
-                  "value": "redis"
-                },
-                {
-                  "name": "REDIS_PORT",
-                  "value": "6379"
-                },
-                {
-                  "name": "REDIS_URL",
-                  "value": "redis://redis:6379"
-                },
-                {
-                  "name": "ACCOUNT_SID",
-                  "value": "${{ secrets.ACCOUNT_SID }}"
-                },
-                {
-                  "name": "AUTH_TOKEN",
-                  "value": "${{ secrets.AUTH_TOKEN }}"
-                },
-                {
-                  "name": "MESSAGING_SERVICE_SID",
-                  "value": "${{ secrets.MESSAGING_SERVICE_SID }}"
-                },
-                {
-                  "name": "GOOGLE_API_KEY",
-                  "value": "${{ secrets.GOOGLE_API_KEY }}"
-                },
-                {
-                  "name": "JWTSECRETKEY",
-                  "value": "${{ secrets.JWTSECRETKEY }}"
+                  "containerName": "redis",
+                  "condition": "START"
                 }
               ],
               "logConfiguration": {
@@ -130,9 +106,21 @@ jobs:
                   "awslogs-region": "${{ secrets.AWS_REGION }}",
                   "awslogs-stream-prefix": "redis"
                 }
+              },
+              "healthCheck": {
+                "command": ["CMD-SHELL", "redis-cli ping || exit 1"],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 10
               }
             }
-          ]
+          ],
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "512",
+          "memory": "1024",
+          "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
+          "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}"
         }' > task-definition.json
 
     - name: Deploy to ECS
