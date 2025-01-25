@@ -96,10 +96,6 @@ jobs:
                   "value": "${{ secrets.GOOGLE_API_KEY }}"
                 },
                 {
-                  "name": "REDIS_URL",
-                  "value": "${{ secrets.REDIS_URL }}"
-                },
-                {
                   "name": "JWTSECRETKEY",
                   "value": "${{ secrets.JWTSECRETKEY }}"
                 }
