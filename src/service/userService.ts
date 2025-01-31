@@ -21,10 +21,10 @@ export class userService {
   public async addUser(request: Request, response: Response) {
 
     const getUserData = request.body;
-    console.log("this is My jwt payload",response.locals)
+    //console.log("this is My jwt payload",response.locals)
     const jwtPayloads = response.locals; // Accessing JWT payload data
     // Store JWT payload in class property
-    console.log("What pay laod is comming ", jwtPayloads['number'])
+    console.log("What pay laod is comming ", jwtPayloads['jwt']['number'])
     const address = await getCurrentLocation(
       request.body.latitude,
       request.body.longitude
@@ -32,11 +32,17 @@ export class userService {
     getUserData['Address'] = address
     console.log("USER DATA AFter chnages ", getUserData)
 
-    const user = await this.userRepo.updateUser(jwtPayloads['number'], getUserData);//adding user details to db 
-
+    const user = await this.userRepo.updateUser(jwtPayloads['jwt']['number'], getUserData);//adding user details to db 
+    console.log("Lets seeeee",user['affected'])
+    if(user['affected'] > 0){
     return response.status(200).send({
       message: "User Created ",
     });
+  }else {
+    return response.status(500).send({
+      message: "Something Went Wrong !",
+    });
+  }
   }
  
   public async getUserData(request: Request, response: Response) {
@@ -66,55 +72,7 @@ export class userService {
 
 
 
-  // public async verifyOtp(request: Request, response: Response) {
-  //   console.log("flow2")
-  //   const data = request.query;
-
-  //   console.log("****", data, "****");
-  //   const otp = await this.userRepo.verifyOtp(data.number, data.otp); //
-  //   console.log("*****OTP******", otp.Otp);
-  //   console.log("******SPLIT STRING*****", otp.Otp.toString());
-  //   try {
-  //     let otpString = otp.Otp.toString();
-  //     const [ivHex, encryptedData] = otpString.split(":");
-  //     const phoneNumber = data.number.toString();
-  //     const redisData = JSON.parse(await redisClient.get(phoneNumber));
-  //     const keyBuffer = Buffer.from(redisData.encryptionKey, "hex");
-  //     console.log("** REDIS DATA **", redisData.encryptionKey);
-  //     const iv = Buffer.from(ivHex, "hex");
-  //     const encryptedBuffer = Buffer.from(encryptedData, "hex");
-  //     console.log(
-  //       "*****IV *** ENCRYPTED_BUFFER_DATA **",
-  //       ivHex,
-  //       encryptedBuffer
-  //     );
-  //     console.log("*** IV BUFFER AND ENCRYPTED  BUFFER ** ", iv, keyBuffer);
-
-  //     const decipher = crypto.createDecipheriv("aes-256-cbc", keyBuffer, iv);
-
-  //     const decryptedData = Buffer.concat([
-  //       decipher.update(encryptedBuffer),
-  //       decipher.final(),
-  //     ]);
-  //     const res = decryptedData.toString("utf-8");
-  //     console.log("** DECREPTED DATA ** ", res);
-  //     if (data.otp === res) {
-  //       return response.send({
-  //         message: "OTP Verified sucessfully",
-  //       });
-  //     } else if (redisData === null) {
-  //       return response.send({
-  //         message: "OTP Expired ",
-  //       });
-  //     } else {
-  //       return response.send({
-  //         message: "Incorrect OT",
-  //       });
-  //     }
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
+  
 
 
 

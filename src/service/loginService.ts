@@ -9,8 +9,7 @@ import redisClient from "../config/Redis";
 import * as crypto from "crypto";
 import { sendOtp, getCurrentLocation } from "../utility/external_apis";
 import { LoginRepository } from "../repository/loginRepository";
-import { number } from "joi";
-import { AwsPage } from "twilio/lib/rest/accounts/v1/credential/aws";
+
 @injectable()
 export class LoginService {
   private LoginRepository = AppDataSource.getRepository(User);

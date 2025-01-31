@@ -19,7 +19,7 @@ export async function sendOtp(mobileNumber) {
       body: `Your OTP is: ${otp}`,
       //messagingServiceSid,
       to: `+91${mobileNumber}`,
-      from: "+17756307074",
+      from: "+18482943762",
     });
     console.log(message);
     console.log(
@@ -59,7 +59,16 @@ export async function getCurrentLocation(latitude, longitude) {
         .json({ error: "Failed to reverse geocode the location." });
     }
   } catch (error) {
-    console.log("Otp Error ", error);
+    console.log("Error", error);
     globalException.sendErrorResponse(error);
   }
+}
+
+export async function getLatAndLong(pickup_location,drop_location){
+  console.log(pickup_location)
+  const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+   console.log(GOOGLE_API_KEY);
+   const url =`https://maps.googleapis.com/maps/api/geocode/json?address=${pickup_location}&key=AIzaSyD3HAi9LH89IpmQ6s1euT1bHymBRuqxCmQ`
+   const  source_lat_long = await axios.get(url);
+   console.log(source_lat_long)
 }

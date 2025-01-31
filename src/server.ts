@@ -19,6 +19,7 @@ import TYPES from "./constant/Types";
 import "./controller/Usercontroller";
 import "./controller/patnerController"
 import "./controller/loginController"
+import "./controller/rideContoller"
 import { userService } from "./service/userService";
 import { UserRepository } from "./repository/userRepository";
 import { globalException } from "./exception/global_Exception";
@@ -27,7 +28,8 @@ import { PatnerRepository } from "./repository/patnerRepository";
 import { LoginService } from "./service/loginService";
 import { Types } from "aws-sdk/clients/acm";
 import { LoginRepository } from "./repository/loginRepository";
-
+import  {RidesService} from "./service/ridesService"
+import { setupWebSocket } from "./config/setUpWebsocket"
 //create container instance
 let container = new Container();
 
@@ -37,6 +39,7 @@ container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<PatnerRepository>(TYPES.PatnerRepository).to(PatnerRepository);
 container.bind<LoginService>(TYPES.LoginService).to(LoginService);
 container.bind<LoginRepository>(TYPES.LoginRepository).to(LoginRepository);
+container.bind<RidesService>(TYPES.RidesService).to(RidesService)
 // Initialize the server
 let server = new InversifyExpressServer(container);
 
@@ -145,6 +148,7 @@ process.on("rejectionHandled", (err) => {
 
 let app = server.build();
 app.listen(process.env.VCAP_APP_PORT || 8080); //port allocation and server is listenning on this port
+//setupWebSocket(server)
 console.log(
   "Server Starting on : http://localhost:" + (process.env.VCAP_APP_PORT || 8080)
 );

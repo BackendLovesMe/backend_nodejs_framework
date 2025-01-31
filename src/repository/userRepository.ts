@@ -28,7 +28,7 @@ export class UserRepository {
   }
 
   public async updateUser(number, data) {
-    console.log(number, data);
+    console.log("update User Data ",number);
     const user = await this.UserRepository.update({ phone: number }, data); // Prepare a new user
     return user;
   }

@@ -1,25 +1,31 @@
 import {
-    controller,
-    httpDelete,
-    httpGet,
-    httpPost,
-    httpPut,
-  } from "inversify-express-utils";
-  import { inject, injectable } from "inversify";
-  import { Request, Response, NextFunction, request, response } from "express";
-
-  
+  controller,
+  httpDelete,
+  httpGet,
+  httpPost,
+  httpPut,
+} from "inversify-express-utils";
+import { inject, injectable } from "inversify";
+import { Request, Response, NextFunction, request, response } from "express";
 import TYPES from "../constant/Types";
 import { RidesService } from "../service/ridesService";
 
 
-@controller("/api/v2.0")
-export class ridesController{
+@controller("/api/v4.0")
+export class ridesController {
 
-    @inject(TYPES.RidesService) private RidesService: RidesService;
+  @inject(TYPES.RidesService) private ridesService: RidesService;
 
-    @httpPost("/rides")
-    public async addPatners(request: Request, response: Response) {
-    //   return this.RidesService.addPatners(request, response);
-    }
+  @httpPost("/requestRide")
+  public async requestRide(request: Request, response: Response) {
+    console.log("Rides Controller")
+    return this.ridesService.requestRide(request, response);
+  }
+
+  @httpGet('/driverLoaction')
+  public async driverLocation(request: Request, response: Response){
+    return this.ridesService.driverLoaction(request, response)
+  }
+
+
 }
