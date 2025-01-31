@@ -1,132 +1,132 @@
-name: Deploy to AWS ECS
+# name: Deploy to AWS ECS
 
-on:
-  push:
-    branches:
-      - evian_repo
+# on:
+#   push:
+#     branches:
+#       - evian_repo
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+#     steps:
+#     - name: Checkout Code
+#       uses: actions/checkout@v3
 
-    - name: Enable Debugging
-      run: |
-        echo "RUNNER_DEBUG=true" >> $GITHUB_ENV
-        echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
+#     - name: Enable Debugging
+#       run: |
+#         echo "RUNNER_DEBUG=true" >> $GITHUB_ENV
+#         echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '22'
+#     - name: Set up Node.js
+#       uses: actions/setup-node@v3
+#       with:
+#         node-version: '22'
 
-    - name: Install Dependencies
-      run: npm install
+#     - name: Install Dependencies
+#       run: npm install
 
-    - name: Compile TypeScript Code
-      run: npx tsc
+#     - name: Compile TypeScript Code
+#       run: npx tsc
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v3
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+#     - name: Configure AWS Credentials
+#       uses: aws-actions/configure-aws-credentials@v3
+#       with:
+#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Log in to AWS ECR
-      run: |
-        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+#     - name: Log in to AWS ECR
+#       run: |
+#         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
 
-    - name: Build Docker Image
-      run: |
-        docker build -t my-backend .
-        docker tag my-backend:latest ${{ secrets.ECR_REPOSITORY }}:latest
+#     - name: Build Docker Image
+#       run: |
+#         docker build -t my-backend .
+#         docker tag my-backend:latest ${{ secrets.ECR_REPOSITORY }}:latest
 
-    - name: Push Docker Image to ECR
-      run: |
-        docker push ${{ secrets.ECR_REPOSITORY }}:latest
+#     - name: Push Docker Image to ECR
+#       run: |
+#         docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
-    - name: Create ECS Task Definition
-      run: |
-        echo '{
-          "family": "my-backend-task",
-          "networkMode": "awsvpc",
-          "containerDefinitions": [
-            {
-              "name": "my-backend",
-              "image": "${{ secrets.ECR_REPOSITORY }}:latest",
-              "essential": true,
-              "portMappings": [
-                {
-                  "containerPort": 3000,
-                  "protocol": "tcp"
-                }
-              ],
-              "environment": [
-                { "name": "REDIS_HOST", "value": "redis" },
-                { "name": "REDIS_PORT", "value": "6379" },
-                { "name": "ACCOUNT_SID", "value": "${{ secrets.ACCOUNT_SID }}" },
-                { "name": "AUTH_TOKEN", "value": "${{ secrets.AUTH_TOKEN }}" },
-                { "name": "MESSAGING_SERVICE_SID", "value": "${{ secrets.MESSAGING_SERVICE_SID }}" },
-                { "name": "GOOGLE_API_KEY", "value": "${{ secrets.GOOGLE_API_KEY }}" },
-                { "name": "JWTSECRETKEY", "value": "${{ secrets.JWTSECRETKEY }}" }
-              ],
-              "dependsOn": [
-                {
-                  "containerName": "redis",
-                  "condition": "START"
-                }
-              ],
-              "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                  "awslogs-group": "/ecs/my-backend-task",
-                  "awslogs-region": "${{ secrets.AWS_REGION }}",
-                  "awslogs-stream-prefix": "backend"
-                }
-              }
-            },
-            {
-              "name": "redis",
-              "image": "redis:alpine",
-              "essential": true,
-              "portMappings": [
-                {
-                  "containerPort": 6379,
-                  "protocol": "tcp"
-                }
-              ],
-              "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                  "awslogs-group": "/ecs/my-backend-task",
-                  "awslogs-region": "${{ secrets.AWS_REGION }}",
-                  "awslogs-stream-prefix": "redis"
-                }
-              },
-              "healthCheck": {
-                "command": ["CMD-SHELL", "redis-cli ping || exit 1"],
-                "interval": 30,
-                "timeout": 5,
-                "retries": 3,
-                "startPeriod": 10
-              }
-            }
-          ],
-          "requiresCompatibilities": ["FARGATE"],
-          "cpu": "512",
-          "memory": "1024",
-          "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
-          "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}"
-        }' > task-definition.json
+#     - name: Create ECS Task Definition
+#       run: |
+#         echo '{
+#           "family": "my-backend-task",
+#           "networkMode": "awsvpc",
+#           "containerDefinitions": [
+#             {
+#               "name": "my-backend",
+#               "image": "${{ secrets.ECR_REPOSITORY }}:latest",
+#               "essential": true,
+#               "portMappings": [
+#                 {
+#                   "containerPort": 3000,
+#                   "protocol": "tcp"
+#                 }
+#               ],
+#               "environment": [
+#                 { "name": "REDIS_HOST", "value": "redis" },
+#                 { "name": "REDIS_PORT", "value": "6379" },
+#                 { "name": "ACCOUNT_SID", "value": "${{ secrets.ACCOUNT_SID }}" },
+#                 { "name": "AUTH_TOKEN", "value": "${{ secrets.AUTH_TOKEN }}" },
+#                 { "name": "MESSAGING_SERVICE_SID", "value": "${{ secrets.MESSAGING_SERVICE_SID }}" },
+#                 { "name": "GOOGLE_API_KEY", "value": "${{ secrets.GOOGLE_API_KEY }}" },
+#                 { "name": "JWTSECRETKEY", "value": "${{ secrets.JWTSECRETKEY }}" }
+#               ],
+#               "dependsOn": [
+#                 {
+#                   "containerName": "redis",
+#                   "condition": "START"
+#                 }
+#               ],
+#               "logConfiguration": {
+#                 "logDriver": "awslogs",
+#                 "options": {
+#                   "awslogs-group": "/ecs/my-backend-task",
+#                   "awslogs-region": "${{ secrets.AWS_REGION }}",
+#                   "awslogs-stream-prefix": "backend"
+#                 }
+#               }
+#             },
+#             {
+#               "name": "redis",
+#               "image": "redis:alpine",
+#               "essential": true,
+#               "portMappings": [
+#                 {
+#                   "containerPort": 6379,
+#                   "protocol": "tcp"
+#                 }
+#               ],
+#               "logConfiguration": {
+#                 "logDriver": "awslogs",
+#                 "options": {
+#                   "awslogs-group": "/ecs/my-backend-task",
+#                   "awslogs-region": "${{ secrets.AWS_REGION }}",
+#                   "awslogs-stream-prefix": "redis"
+#                 }
+#               },
+#               "healthCheck": {
+#                 "command": ["CMD-SHELL", "redis-cli ping || exit 1"],
+#                 "interval": 30,
+#                 "timeout": 5,
+#                 "retries": 3,
+#                 "startPeriod": 10
+#               }
+#             }
+#           ],
+#           "requiresCompatibilities": ["FARGATE"],
+#           "cpu": "512",
+#           "memory": "1024",
+#           "executionRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}",
+#           "taskRoleArn": "${{ secrets.TASK_EXECUTION_ROLE_ARN }}"
+#         }' > task-definition.json
 
-    - name: Deploy to ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        cluster: ${{ secrets.CLUSTER_NAME }}
-        service: ${{ secrets.SERVICE_NAME }}
-        task-definition: task-definition.json
-        force-new-deployment: true
+#     - name: Deploy to ECS
+#       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#       with:
+#         cluster: ${{ secrets.CLUSTER_NAME }}
+#         service: ${{ secrets.SERVICE_NAME }}
+#         task-definition: task-definition.json
+#         force-new-deployment: true
