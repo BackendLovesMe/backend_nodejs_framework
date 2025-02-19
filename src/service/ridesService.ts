@@ -9,6 +9,8 @@ import { getDistanceBetweenCoordinates } from "../utility/calculateDistance";
 import redisClient from "../config/Redis";
 import { User } from "../entities/users";
 import { PatnerRepository } from "../repository/patnerRepository";
+import { UserRepository } from "../repository/userRepository";
+import { jwt } from "twilio";
 //import { producer,consumer } from "../config/KafkaSetup";
 
 @injectable()
@@ -17,11 +19,16 @@ export class RidesService {
 
   @inject(TYPES.PatnerRepository) private readonly patnerRepo: PatnerRepository;
   @inject(TYPES.RidesRepository) private readonly RideRepo: RidesRepository;
+  @inject(TYPES.UserRepository) private readonly userRepo: UserRepository;
 
   public async requestRide(request: Request, response: Response) {
+    const jwtPayload=response.locals;
+    const userData=await this.userRepo.getUserDeatails(jwtPayload['jwt']['number'])
+    console.log("✅",userData)
+
     let baseFare = 50;
-    const { user_id, pickup_location, dropLocation } = request.body;
-    console.log("iam in service", user_id, pickup_location, dropLocation);
+    const {  pickup_location, dropLocation } = request.body;
+    console.log("iam in service", userData.id, pickup_location, dropLocation);
     //     try{
     //     await producer.send({
     //         topic:'ride-requests',
@@ -49,7 +56,7 @@ export class RidesService {
     ); //calculating fare
     console.log("✅ LatAND LONG", pickUp_lat_long, "Drop", drop_lat_long);
     let dataObject = {
-      user_id,
+      user_id:userData.id,
       source_location: pickup_location,
       source_latitude: pickUp_lat_long.lat,
       source_longitude: pickUp_lat_long.lng,
