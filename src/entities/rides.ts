@@ -9,48 +9,52 @@ export class Rides {
     @Column()
     user_id: number
 
-    @Column()
-    patnerVechileId: number
+    @Column({nullable:true})
+    patner_vechile_id: number
 
     @Column()
-    sourceLocation: string
+    source_location: string
 
     @Column()
-    sourceLatitude: string
+    source_latitude: string
 
     @Column()
-    sourceLongitude: string
+    source_longitude: string
 
     @Column()
-    destinantionLocation: string
+    destinantion_location: string
 
     @Column()
-    destinationLatitude: string
+    destination_latitude: string
 
     @Column()
-    destinantionLongitude: string
+    destinantion_longitude: string
 
     @Column()
     fare: number
 
-    @Column()
+    @Column({nullable:true})
     tip: number
 
-    @Column()
+    @Column({nullable:true})
     user_rating: number
 
-    @Column()
+    @Column({nullable:true})
     feedback:string
 
-    @Column()
+    @Column({nullable:true})
     patnerRating:number
 
-    @Column()
-    patnerStartLongitude:string
+    @Column({nullable:true})
+    patner_start_longitude:string
 
-    @Column()
-    patnerStartLatitude:string
+    @Column({nullable:true})
+    patner_start_latitude:string
     // @Column('geography', { spatialFeatureType: 'Point', srid: 4326 })
     //  location: string;
+    @Column({})
+    ride_status:string
+    @Column({nullable:true})
+    partnerId:number
 
 }

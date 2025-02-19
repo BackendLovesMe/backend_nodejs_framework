@@ -26,4 +26,8 @@ export class PatnerRepository{
     return await this.VechileRepository.findOne({where:{vechile_number:vechile_number,rc_number:rc_number}})
     
   }
-}
+  public async getPatnerDetails(phone){
+    const user = await this.PatenerRepository.findOneBy({phone:phone}); // Prepare a new user
+    return user;
+  }
+  }

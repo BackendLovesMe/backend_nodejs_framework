@@ -26,7 +26,16 @@ export class Patners {
     @Column({ type: 'bytea' })
     profile_picture:Buffer
     
+    @Column()
+    current_lat:string
+     @Column()
+     current_lng:string
+
+     @Column()
+     status:string
     // @Column('geography', { spatialFeatureType: 'Point', srid: 4326 })
     //  location: string;
+    @Column()
+    phone:string
 
 }

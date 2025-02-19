@@ -30,6 +30,7 @@ import { Types } from "aws-sdk/clients/acm";
 import { LoginRepository } from "./repository/loginRepository";
 import  {RidesService} from "./service/ridesService"
 import { setupWebSocket } from "./config/setUpWebsocket"
+import { RidesRepository } from "./repository/ridesRepository";
 //create container instance
 let container = new Container();
 
@@ -40,6 +41,7 @@ container.bind<PatnerRepository>(TYPES.PatnerRepository).to(PatnerRepository);
 container.bind<LoginService>(TYPES.LoginService).to(LoginService);
 container.bind<LoginRepository>(TYPES.LoginRepository).to(LoginRepository);
 container.bind<RidesService>(TYPES.RidesService).to(RidesService)
+container.bind<RidesRepository>(TYPES.RidesRepository).to(RidesRepository)
 // Initialize the server
 let server = new InversifyExpressServer(container);
 
@@ -147,13 +149,8 @@ process.on("rejectionHandled", (err) => {
 // salesforceClientInstance.oauthLogin();
 
 let app = server.build();
-const port = parseInt(process.env.PORT || "3000", 10); // Default to 8080 if PORT is not set
-const host = process.env.HOST || '0.0.0.0';
-app.listen(port,host,()=>{
-//setupWebSocket(server)
-  console.log(
-    `Server Starting on : host  ${host}:port ${port}`
-  );
-}); //port allocation and server is listenning on this port
-
+app.listen(process.env.VCAP_APP_PORT || 8080); //port allocation and server is listenning on this port
+console.log(
+  "Server Starting on : http://localhost:" + (process.env.VCAP_APP_PORT || 8080)
+);
 exports = module.exports = app;

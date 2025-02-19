@@ -1,7 +1,7 @@
 import twilio from "twilio";
 import dotenv from "dotenv";
 import { globalException } from "../exception/global_Exception";
-import axios from "axios";
+import axios, { Axios } from "axios";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -34,7 +34,7 @@ export async function sendOtp(mobileNumber) {
 }
 
 export async function getCurrentLocation(latitude, longitude) {
-  const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+  const GOOGLE_API_KEY = "AIzaSyD3HAi9LH89IpmQ6s1euT1bHymBRuqxCmQ";
   try {
     if (!latitude || !longitude) {
       return "Latitude and longitude are required.";
@@ -43,6 +43,7 @@ export async function getCurrentLocation(latitude, longitude) {
       `Received Location: Latitude=${latitude}, Longitude=${longitude}`
     );
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`;
+    console.log("GOOGLE_API_KEY",GOOGLE_API_KEY)
 
     const response = await axios.get(url);
     if (response.data.status === "OK") {
@@ -64,11 +65,26 @@ export async function getCurrentLocation(latitude, longitude) {
   }
 }
 
-export async function getLatAndLong(pickup_location,drop_location){
-  console.log(pickup_location)
-  const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-   console.log(GOOGLE_API_KEY);
-   const url =`https://maps.googleapis.com/maps/api/geocode/json?address=${pickup_location}&key=AIzaSyD3HAi9LH89IpmQ6s1euT1bHymBRuqxCmQ`
-   const  source_lat_long = await axios.get(url);
-   console.log(source_lat_long)
+export async function getLatAndLong(address){
+  
+  try {
+    const apiKey = process.env.GOOGLE_API_KEY // Replace with your actual API key
+    const encodedAddress = encodeURIComponent(address);
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}`;
+
+    console.log("Requesting URL:", url); // Debugging URL
+
+    const response = await axios.get(url);
+
+    if (response.data.status === "OK") {
+      const { lat, lng } = response.data.results[0].geometry.location;
+      console.log(`Latitude: ${lat}, Longitude: ${lng}`);
+      return { lat, lng };
+    } else {
+      console.error("Error:", response.data.status, response.data.error_message || "");
+      return null;
+    }
+  } catch (error) {
+    console.error("API Error:", error.message);
+  }
 }

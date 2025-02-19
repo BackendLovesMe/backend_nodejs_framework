@@ -18,11 +18,11 @@ export class PatnerService {
 
   public async addPatners(request: Request, response: Response) {
     const file = request.files['profile_picture'][0];
-    const { patner_name, adhar_number, license_number, DOB, gender, rating } = request.body;
-    console.log(patner_name, adhar_number, license_number, DOB, gender, rating, file.originalname, file.buffer)
+    const { patner_name, adhar_number, license_number, DOB, gender, rating,current_lat,current_lng, status,phone} = request.body;
+    console.log(patner_name, adhar_number, license_number, DOB, gender, rating, file.originalname, file.buffer,current_lat,current_lng)
     const filebuffer = (file.buffer).toString('base64')
     const patnerData = {
-      patner_name, adhar_number, license_number, DOB, gender, rating, "profile_picture": filebuffer
+      patner_name, adhar_number, license_number, DOB, gender, rating, "profile_picture": filebuffer,current_lat,current_lng,status,phone
     }
     //console.log(patnerData)
     await this.patnerRepo.addPatners(patnerData);//adding patners data

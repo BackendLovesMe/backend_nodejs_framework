@@ -27,5 +27,18 @@ export class ridesController {
     return this.ridesService.driverLoaction(request, response)
   }
 
+  @httpGet('/notifyDrivers')
+  public async notifyDrivers(request:Request,response:Response){
+    return this.ridesService.notifyDrivers(request,response)
+  }
+
+  @httpGet('/acceptRide')
+  public async acceptRide(request:Request,response:Response){
+    return this.ridesService.acceptRide(request,response);
+  }
+
+  
+
+
 
 }
