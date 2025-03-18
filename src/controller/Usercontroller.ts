@@ -27,10 +27,10 @@ export class Controller {
     return this.userService.addUser(request, response);
   }
   @httpGet("/getUserData")
-  public async getUserData(resuest:Request, response :Response){
+  public async getUserData(request:Request, response :Response){
     return this.userService.getUserData(request, response);
-
   }
+
 
  
 

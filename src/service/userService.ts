@@ -1,16 +1,14 @@
 import { injectable, inject, id } from "inversify";
 import { Request, Response } from "express";
 import TYPES from "../constant/Types";
-const path = require("path");
-const { v4: uuidv4 } = require("uuid");
 import { UserRepository } from "../repository/userRepository";
 import { AppDataSource } from "../config/data-source";
 import { User } from "../entities/users";
-import * as crypto from "crypto";
 import { sendOtp, getCurrentLocation } from "../utility/external_apis";
 import { string } from "joi";
 import redisClient from "../config/Redis";
 import { commandOptions } from "redis";
+
 
 @injectable()
 export class userService {
@@ -67,13 +65,6 @@ export class userService {
 
   }
 
-
-
-
-
-
+ 
   
-
-
-
 }

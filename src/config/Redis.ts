@@ -1,6 +1,9 @@
 import { createClient } from 'redis';
 
 const redisClient = createClient({
+    socket: {
+        connectTimeout: 10000, // ✅ Set a proper timeout (10 sec)
+      },
     url: process.env.REDIS_URL,
 });
 

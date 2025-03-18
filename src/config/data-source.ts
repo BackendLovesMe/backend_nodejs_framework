@@ -4,6 +4,7 @@ import { User} from "../entities/users";
 import { Patners } from "../entities/patners";
 import { patenerVechiles } from "../entities/patnerVechiles";
 import {Rides} from "../entities/rides"
+
  
 export const AppDataSource = new DataSource({
   type: "postgres",

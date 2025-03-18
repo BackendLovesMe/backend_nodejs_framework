@@ -1,36 +1,42 @@
-import redisClient from "./Redis";
-import WebSocket from "ws";
-const clients = new Map<string, WebSocket>(); // Store connected drivers
+import { injectable } from "inversify";
+import { Server as WebSocketServer, WebSocket } from "ws";
+import { createServer, Server as HTTPServer } from "http";
+import { Application } from "express";
 
-export function setupWebSocket(wss:any) {
+@injectable()
+export class WebSocketService {
+  private wss: WebSocketServer;
+  private server: HTTPServer;
 
-  wss.on("connection", (ws, req) => {
-    console.log("🔹 Driver connected");
+  initialize(app: Application) {
+    // Create an HTTP server and attach Express to it
+    this.server = createServer(app);
 
-    ws.on("message", (message) => {
-      try {
-        const data = JSON.parse(message.toString());
+    // Attach WebSockets to the HTTP server
+    this.wss = new WebSocketServer({ server: this.server });
 
-        if (data.type === "register" && data.driverId) {
-          clients.set(data.driverId, ws);
-          console.log(`✅ Driver ${data.driverId} registered.`);
-        }
-
-        if (data.type === "location_update" && data.driverId && data.lat && data.lng) {
-          // 🔹 Store driver location inside Redis
-          redisClient.set(`driver:${data.driverId}`, JSON.stringify({ lat: data.lat, lng: data.lng }));
-          console.log(`📍 Updated location for ${data.driverId}: ${data.lat}, ${data.lng}`);
-        }
-      } catch (error) {
-        console.error("⚠️ Error processing message:", error);
-      }
+    // Start the server
+    this.server.listen(3000, () => {
+      console.log("✅ HTTP & WebSocket Server running on http://localhost:3000");
     });
 
-    ws.on("close", () => {
-      console.log("❌ Driver disconnected");
-      clients.forEach((client, driverId) => {
-        if (client === ws) clients.delete(driverId);
+    // Handle WebSocket connections
+    this.wss.on("connection", (ws: WebSocket) => {
+      console.log("✅ New WebSocket connection established!");
+
+      ws.on("message", (message) => {
+        console.log("📩 Received:", message.toString());
+
+        // Echo message back to the client
+        
       });
     });
-  });
+  }
+  sendMessage(data: string) {
+    this.wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(data);
+      }
+    });
+  }
 }

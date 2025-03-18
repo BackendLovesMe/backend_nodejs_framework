@@ -1,3 +1,5 @@
+
+
 const TYPES = {
     Userservice : 'UserService',
     PatnerService:'PatnerService',
@@ -6,7 +8,9 @@ const TYPES = {
     LoginService:"LoginService",
     LoginRepository:"LoginRepository",
     RidesService:"RidesService",
-    RidesRepository:"RidesRepository"
+    RidesRepository:"RidesRepository",
+    MongoDbRepository:"MongoDbRepository",
+    WebSocketService:"WebSocketService"
 }
 
 export default TYPES;

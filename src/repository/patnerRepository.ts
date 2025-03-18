@@ -1,7 +1,8 @@
 import { injectable } from "inversify";
 import { AppDataSource } from "../config/data-source";
-import { Patners,} from "../entities/patners";
+import { Patners} from "../entities/patners";
 import { patenerVechiles } from "../entities/patnerVechiles";
+
 
 @injectable()
 export class PatnerRepository{
@@ -27,7 +28,17 @@ export class PatnerRepository{
     
   }
   public async getPatnerDetails(phone){
-    const user = await this.PatenerRepository.findOneBy({phone:phone}); // Prepare a new user
+    
+    const user = await this.PatenerRepository.findOneBy({phone:phone});
+    console.log("getPatnerDetails",user) // Prepare a new user
     return user;
+  }
+  public async driverLogout(userId,status,isActive){
+     console.log(typeof userId,status,isActive)
+     await this.PatenerRepository.update(userId,{
+      status: status,
+      isActive:isActive
+      
+    })
   }
   }

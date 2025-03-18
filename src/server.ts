@@ -17,43 +17,45 @@ import { AppDataSource } from "./config/data-source";
 import * as jwt from "jsonwebtoken";
 import TYPES from "./constant/Types";
 import "./controller/Usercontroller";
-import "./controller/patnerController"
-import "./controller/loginController"
-import "./controller/rideContoller"
+import "./controller/patnerController";
+import "./controller/loginController";
+import "./controller/rideContoller";
 import { userService } from "./service/userService";
 import { UserRepository } from "./repository/userRepository";
 import { globalException } from "./exception/global_Exception";
 import { PatnerService } from "./service/patnerService";
 import { PatnerRepository } from "./repository/patnerRepository";
 import { LoginService } from "./service/loginService";
-import { Types } from "aws-sdk/clients/acm";
 import { LoginRepository } from "./repository/loginRepository";
-import  {RidesService} from "./service/ridesService"
-import { setupWebSocket } from "./config/setUpWebsocket"
+import { RidesService } from "./service/ridesService";
 import { RidesRepository } from "./repository/ridesRepository";
+import { WebSocketService } from "./config/setUpWebsocket";
+import { createServer, Server } from "http";
 //create container instance
-let container = new Container();
 
+let container = new Container();
 container.bind<userService>(TYPES.Userservice).to(userService);
 container.bind<PatnerService>(TYPES.PatnerService).to(PatnerService);
 container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<PatnerRepository>(TYPES.PatnerRepository).to(PatnerRepository);
 container.bind<LoginService>(TYPES.LoginService).to(LoginService);
 container.bind<LoginRepository>(TYPES.LoginRepository).to(LoginRepository);
-container.bind<RidesService>(TYPES.RidesService).to(RidesService)
-container.bind<RidesRepository>(TYPES.RidesRepository).to(RidesRepository)
+container.bind<RidesService>(TYPES.RidesService).to(RidesService);
+container.bind<RidesRepository>(TYPES.RidesRepository).to(RidesRepository);
+container.bind<WebSocketService>(WebSocketService).toSelf().inSingletonScope();
+
 // Initialize the server
 let server = new InversifyExpressServer(container);
-
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (ext === ".png" || ext === ".jpg" || ext === '.jfif') {
+  if (ext === ".png" || ext === ".jpg" || ext === ".jfif") {
     cb(null, true);
   } else {
     cb(new Error("File format not supported"), false);
   }
 };
+
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
@@ -67,46 +69,60 @@ AppDataSource.initialize()
     console.log("Database connected!");
   })
   .catch((err) => console.error("Database connection error:", err));
+
 //set middleware in server configuration
 server.setConfig((app) => {
   app.use(compression());
   app.use(helmet());
   app.use(bodyParser.json({ limit: "25mb" }));
   app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
-  app.use(function (request, response, next) {//jwt awth middleware
+
+  app.use(function (request, response, next) {
+    //jwt awth middleware
     console.log("In authorization function...");
     console.log(request.url);
 
     // Bypass certain routes
-    if (request.url.includes('/login') || request.url.includes('/sendOtp') || request.url.includes('/verifyOtp')) {
-        console.log("Bypass this request ");
-        return next(); // Ensure to return here to prevent further execution
+    if (
+      request.url.includes("/login") ||
+      request.url.includes("/sendOtp") ||
+      request.url.includes("/verifyOtp")
+    ) {
+      console.log("Bypass this request ");
+      return next(); // Ensure to return here to prevent further execution
     }
 
-    const token = request.headers.authorization?.split(' ')[1];
+    const token = request.headers.authorization?.split(" ")[1];
     if (!token) {
-        console.log('No Token Provided or Invalid Token...');
-        return response.status(403).json({ message: "No token provided" });
+      console.log("No Token Provided or Invalid Token...");
+      return response.status(403).json({ message: "No token provided" });
     }
 
     // Verify the token
     jwt.verify(token, process.env.JWTSECRETKEY, (err, jwtPayload) => {
-        if (err) {
-            console.log('Invalid Token...', err);
-            return response.status(401).json({ message: "Unauthorized access" });
-        }
+      if (err) {
+        console.log("Invalid Token...", err);
+        return response.status(401).json({ message: "Unauthorized access" });
+      }
 
-        // Set the payload to request
-      response.locals.jwt = jwtPayload; // Setting payload to request 
-        console.log("Setting payload to request ",response.locals.jwt );
+      // Set the payload to request
+      response.locals.jwt = jwtPayload; // Setting payload to request
+      console.log("Setting payload to request ", response.locals.jwt);
 
-        // Proceed to the next middleware or route handler
-        next();
+      // Proceed to the next middleware or route handler
+      next();
     });
-});
+  });
+
   app.use(useragent.express());
+
   app.use(cookieParser());
-  app.use(upload.fields([{ name: "profile_picture", maxCount: 1 },{ name: "vechile_picture", maxCount: 1 }])); //multer middleware for asset upload api
+  app.use(
+    upload.fields([
+      { name: "profile_picture", maxCount: 1 },
+      { name: "vechile_picture", maxCount: 1 },
+    ])
+  ); //multer middleware for asset upload api
   //handle cors for request
   app.use(cors());
   app.use(cookieParser());
@@ -119,8 +135,6 @@ server.setConfig((app) => {
     );
     next();
   });
- 
-
 });
 
 //Centralized Exception Handling
@@ -146,9 +160,10 @@ process.on("rejectionHandled", (err) => {
   globalException.handleError(err, "/api/v1.0/rejectionHandled");
 });
 
-// salesforceClientInstance.oauthLogin();
-
 let app = server.build();
+const server1: Server = createServer(app);
+const webSocketService = container.get<WebSocketService>(WebSocketService);
+webSocketService.initialize(app);
 app.listen(process.env.VCAP_APP_PORT || 8080); //port allocation and server is listenning on this port
 console.log(
   "Server Starting on : http://localhost:" + (process.env.VCAP_APP_PORT || 8080)

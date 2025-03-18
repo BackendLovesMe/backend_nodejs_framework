@@ -31,4 +31,19 @@ export class patnersController {
     console.log("checking ...")
     return this.PatnerService.patanerVechiles(request, response);
   }
+  @httpPost("/driverLogout")
+  public async driverLogout(request: Request, response: Response){
+    return this.PatnerService.driverLogout(request, response);
+  }
+  @httpPost('/currentLocationProducer')
+  public async currentDriverLocationProducer(request: Request, response: Response){
+    return this.PatnerService.currentLocationProducer(request, response);
+
+  }
+  @httpGet('/currentLocationConsumer')
+  public async currentLocationConsumer(request: Request, response: Response){
+    return this.PatnerService.currentLocationConsumer(request, response);
+  }
+  
+
 }
